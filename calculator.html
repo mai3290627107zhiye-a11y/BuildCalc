@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BuildCalc Pro Calculator - Accurately calculate concrete, rebar, brick, wood, and tile quantities with unit price and total cost. Multi-language, multi-currency, metric/imperial switching.">
+    <title>BuildCalc Pro - Construction Calculator</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BuildCalc Pro — Construction Calculator">
+    <meta property="og:description" content="Concrete, rebar, brick, wood, tile — precise quantity & cost estimation. Multi-currency support.">
+    <meta property="og:image" content="https://your-domain.com/og-image.png">
+    <meta property="og:url" content="https://your-domain.com/calculator.html">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-alt: #f1f5f7;
+            --text: #1a2b34;
+            --text-secondary: #5e6f7b;
+            --text-muted: #8b9aa6;
+            --border: #e2e8ed;
+            --accent: #1e6f8c;
+            --accent-light: #e6f3f8;
+            --accent-dark: #155a72;
+            --green-light: #e8f5ee;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --font: 'Inter', 'PingFang SC', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans JP', 'Helvetica Neue', system-ui, sans-serif;
+            --transition: 0.3s ease;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; padding-bottom:40px; }
+        .navbar {
+            position:sticky; top:0; z-index:1000;
+            background:rgba(255,255,255,0.92); backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border); padding:14px 24px; box-shadow:var(--shadow-sm);
+        }
+        .navbar-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.2rem; color:var(--accent); text-decoration:none; }
+        .logo-icon { width:38px; height:38px; border-radius:var(--radius-sm); background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff; }
+        .btn-pill { padding:8px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); font-size:0.85rem; font-weight:500; cursor:pointer; color:var(--text-secondary); white-space:nowrap; transition:var(--transition); font-family:var(--font); }
+        .btn-pill.active { background:var(--accent-light); border-color:var(--accent); color:var(--accent-dark); font-weight:600; }
+        .btn-pill.accent { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
+        .main-container { max-width:960px; margin:0 auto; padding:20px 16px; }
+        .tab-nav { display:flex; gap:4px; flex-wrap:wrap; background:var(--surface); border-radius:var(--radius-lg); padding:5px; box-shadow:var(--shadow); margin-bottom:24px; position:sticky; top:80px; z-index:50; }
+        .tab-btn { flex:1; min-width:80px; padding:11px 14px; border:none; background:transparent; border-radius:var(--radius); cursor:pointer; font-size:0.9rem; color:var(--text-secondary); transition:var(--transition); font-family:var(--font); white-space:nowrap; }
+        .tab-btn.active { background:var(--accent); color:#fff; font-weight:600; }
+        .calc-card { background:var(--surface); border-radius:var(--radius-xl); padding:24px 22px; box-shadow:var(--shadow); margin-bottom:16px; border:1px solid #edf1f4; }
+        .calc-card h3 { font-size:1.15rem; margin-bottom:6px; display:flex; gap:8px; align-items:center; }
+        .desc { font-size:0.84rem; color:var(--text-muted); margin-bottom:18px; }
+        .input-group { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+        .input-field { flex:1; min-width:130px; display:flex; flex-direction:column; gap:4px; }
+        .input-field label { font-size:0.78rem; font-weight:600; color:var(--text-secondary); }
+        .input-field input { padding:10px 13px; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:var(--surface-alt); font-size:0.95rem; font-family:var(--font); }
+        .result-box { background:var(--green-light); border:1.5px solid #d0e8da; border-radius:var(--radius); padding:16px 18px; margin-top:8px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
+        .result-item { display:flex; flex-direction:column; }
+        .result-label { font-size:0.73rem; font-weight:600; color:#5a7d68; text-transform:uppercase; }
+        .result-value { font-size:1.4rem; font-weight:700; color:#1a4d2e; white-space:nowrap; }
+        .btn-calc { padding:11px 22px; border-radius:22px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; transition:var(--transition); font-family:var(--font); font-size:0.9rem; }
+        .note { font-size:0.75rem; color:var(--text-muted); margin-top:10px; font-style:italic; }
+        .pro-teaser { background:linear-gradient(135deg, #fdf8f0, #fef9ee); border:1.5px dashed #e0c88e; border-radius:var(--radius-lg); padding:18px 20px; margin-top:20px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+        .pro-teaser .pro-text { font-size:0.88rem; color:#6b5518; font-weight:500; }
+        .pro-teaser .pro-text strong { color:#8a6510; }
+        .cta { text-align:center; padding:40px 24px; background:linear-gradient(135deg, var(--accent), #0e4d63); border-radius:var(--radius-2xl); color:#fff; margin-top:40px; }
+        .cta h2 { font-size:1.8rem; margin-bottom:16px; }
+        .cta p { margin-bottom:24px; opacity:0.9; }
+        .btn-white { padding:12px 28px; border-radius:24px; border:none; background:#fff; color:var(--accent); font-weight:700; cursor:pointer; font-family:var(--font); }
+        .footer { text-align:center; padding:40px 24px; font-size:0.85rem; color:var(--text-muted); border-top:1px solid var(--border); margin-top:20px; }
+        .hidden { display:none !important; }
+        .unit-hint { font-size:0.7rem; font-weight:400; color:var(--text-muted); margin-left:2px; }
+        @media (max-width:768px) {
+            .btn-pill { font-size:0.75rem; padding:6px 10px; }
+            .result-value { font-size:1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="logo" href="index.html"><span class="logo-icon">🏗️</span> BuildCalc Pro</a>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                <button class="btn-pill active" id="btnUnitMetric" onclick="switchUnit('metric')">📐 <span data-i18n="btnMetric">Metric</span></button>
+                <button class="btn-pill" id="btnUnitImperial" onclick="switchUnit('imperial')">📏 <span data-i18n="btnImperial">Imperial</span></button>
+                <span style="color:var(--border);margin:0 4px;">|</span>
+                <button class="btn-pill active" id="btnCurCNY" onclick="switchCurrency('CNY')">💴 CNY</button>
+                <button class="btn-pill" id="btnCurUSD" onclick="switchCurrency('USD')">💵 USD</button>
+                <button class="btn-pill" id="btnCurJPY" onclick="switchCurrency('JPY')">💴 JPY</button>
+                <span style="color:var(--border);margin:0 4px;">|</span>
+                <button class="btn-pill" id="btnLangZH" onclick="switchLang('zh')">🇨🇳 <span data-i18n="btnLangZH">简</span></button>
+                <button class="btn-pill" id="btnLangZHHant" onclick="switchLang('zh-Hant')">🇭🇰 <span data-i18n="btnLangZHHant">繁</span></button>
+                <button class="btn-pill active" id="btnLangEN" onclick="switchLang('en')">🇺🇸 <span data-i18n="btnLangEN">EN</span></button>
+                <button class="btn-pill" id="btnLangJA" onclick="switchLang('ja')">🇯🇵 <span data-i18n="btnLangJA">日</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container" id="calculators">
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="concrete" onclick="switchTab('concrete')">🧱 <span data-i18n="tabConcrete">Concrete</span></button>
+            <button class="tab-btn" data-tab="rebar" onclick="switchTab('rebar')">🔩 <span data-i18n="tabRebar">Rebar</span></button>
+            <button class="tab-btn" data-tab="brick" onclick="switchTab('brick')">🧱 <span data-i18n="tabBrick">Brick</span></button>
+            <button class="tab-btn" data-tab="wood" onclick="switchTab('wood')">🪵 <span data-i18n="tabWood">Wood</span></button>
+            <button class="tab-btn" data-tab="tile" onclick="switchTab('tile')">🟫 <span data-i18n="tabTile">Tile</span></button>
+        </nav>
+
+        <!-- Concrete Calculator -->
+        <div class="calc-card" id="panel-concrete">
+            <h3>🧱 <span data-i18n="concreteTitle">Concrete Volume & Weight Calculator</span></h3>
+            <p class="desc" data-i18n="concreteDesc">Enter dimensions to calculate volume, weight, and total cost.</p>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelLength">Length</span> <span class="unit-hint" id="unit-hint-length">(m)</span></label><input type="number" id="conc-length" placeholder="3.5" step="any" min="0" oninput="calcConcrete()"></div>
+                <div class="input-field"><label><span data-i18n="labelWidth">Width</span> <span class="unit-hint" id="unit-hint-width">(m)</span></label><input type="number" id="conc-width" placeholder="2.8" step="any" min="0" oninput="calcConcrete()"></div>
+                <div class="input-field"><label><span data-i18n="labelHeight">Height/Thickness</span> <span class="unit-hint" id="unit-hint-height">(m)</span></label><input type="number" id="conc-height" placeholder="0.25" step="any" min="0" oninput="calcConcrete()"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-item"><span class="result-label" data-i18n="resultVolume">Volume</span><span class="result-value" id="conc-vol">— m³</span></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultWeight">Weight</span><span class="result-value" id="conc-wt">— kg</span></div>
+                <button class="btn-calc" onclick="calcConcrete()" data-i18n="btnCalculate">Calculate</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div class="input-field"><label><span data-i18n="labelUnitPrice">Unit Price</span> <span id="conc-price-unit">(CNY/m³)</span></label><input type="number" id="conc-price" placeholder="0.00" step="any" min="0" oninput="calcConcrete()"></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTotalPrice">Total Cost</span><span class="result-value" id="conc-total">— CNY</span></div>
+            </div>
+            <p class="note"><span data-i18n="concreteNote">* Based on concrete density of</span> <span id="conc-density-ref">2400 kg/m³</span><span data-i18n="concreteNoteSuffix">.</span></p>
+        </div>
+
+        <!-- Rebar Calculator -->
+        <div class="calc-card hidden" id="panel-rebar">
+            <h3>🔩 <span data-i18n="rebarTitle">Rebar Weight Calculator</span></h3>
+            <p class="desc" data-i18n="rebarDesc">Enter diameter and total length to calculate weight and cost.</p>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelDiameter">Diameter</span> <span class="unit-hint" id="unit-hint-diameter">(mm)</span></label><input type="number" id="rebar-dia" placeholder="12" step="any" min="0" oninput="calcRebar()"></div>
+                <div class="input-field"><label><span data-i18n="labelTotalLength">Total Length</span> <span class="unit-hint" id="unit-hint-total-length">(m)</span></label><input type="number" id="rebar-length" placeholder="50" step="any" min="0" oninput="calcRebar()"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-item"><span class="result-label" data-i18n="resultWeight">Weight</span><span class="result-value" id="rebar-wt">— kg</span></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultPerMeter">Weight per Meter</span><span class="result-value" id="rebar-perm">— kg/m</span></div>
+                <button class="btn-calc" onclick="calcRebar()" data-i18n="btnCalculate">Calculate</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div class="input-field"><label><span data-i18n="labelUnitPrice">Unit Price</span> <span id="rebar-price-unit">(CNY/kg)</span></label><input type="number" id="rebar-price" placeholder="0.00" step="any" min="0" oninput="calcRebar()"></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTotalPrice">Total Cost</span><span class="result-value" id="rebar-total">— CNY</span></div>
+            </div>
+            <p class="note"><span data-i18n="rebarNote">* Based on steel density of</span> <span id="steel-density-ref">7850 kg/m³</span><span data-i18n="rebarNoteSuffix">.</span></p>
+        </div>
+
+        <!-- Brick Calculator -->
+        <div class="calc-card hidden" id="panel-brick">
+            <h3>🧱 <span data-i18n="brickTitle">Brick Wall Estimator</span></h3>
+            <p class="desc" data-i18n="brickDesc">Enter wall dimensions to estimate bricks, mortar, and cost.</p>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelWallLength">Wall Length</span> <span class="unit-hint" id="unit-hint-wall-length">(m)</span></label><input type="number" id="brick-length" placeholder="6" step="any" min="0" oninput="calcBrick()"></div>
+                <div class="input-field"><label><span data-i18n="labelWallHeight">Wall Height</span> <span class="unit-hint" id="unit-hint-wall-height">(m)</span></label><input type="number" id="brick-height" placeholder="3" step="any" min="0" oninput="calcBrick()"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-item"><span class="result-label" data-i18n="resultWallArea">Wall Area</span><span class="result-value" id="brick-area">— m²</span></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultBrickCount">Brick Count</span><span class="result-value" id="brick-count">— pcs</span></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultMortar">Mortar Volume</span><span class="result-value" id="brick-mortar">— m³</span></div>
+                <button class="btn-calc" onclick="calcBrick()" data-i18n="btnCalculate">Calculate</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div class="input-field"><label><span data-i18n="labelUnitPrice">Unit Price</span> <span id="brick-price-unit">(CNY/pcs)</span></label><input type="number" id="brick-price" placeholder="0.00" step="any" min="0" oninput="calcBrick()"></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTotalPrice">Total Cost</span><span class="result-value" id="brick-total">— CNY</span></div>
+            </div>
+            <p class="note" data-i18n="brickNote">* Based on standard brick 240×115×53mm with 10mm mortar joint, approx. 128 bricks per m².</p>
+        </div>
+
+        <!-- Wood Calculator -->
+        <div class="calc-card hidden" id="panel-wood">
+            <h3>🪵 <span data-i18n="woodTitle">Wood Volume Calculator</span></h3>
+            <p class="desc" data-i18n="woodDesc">Enter dimensions to calculate single piece volume and cost.</p>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelWoodLength">Length</span> <span class="unit-hint" id="unit-hint-wood-length">(m)</span></label><input type="number" id="wood-length" placeholder="4" step="any" min="0" oninput="calcWood()"></div>
+                <div class="input-field"><label><span data-i18n="labelWoodWidth">Width</span> <span class="unit-hint" id="unit-hint-wood-width">(m)</span></label><input type="number" id="wood-width" placeholder="0.15" step="any" min="0" oninput="calcWood()"></div>
+                <div class="input-field"><label><span data-i18n="labelWoodThick">Thickness</span> <span class="unit-hint" id="unit-hint-wood-thick">(m)</span></label><input type="number" id="wood-thick" placeholder="0.05" step="any" min="0" oninput="calcWood()"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-item"><span class="result-label" data-i18n="resultVolume">Volume</span><span class="result-value" id="wood-vol">— m³</span></div>
+                <button class="btn-calc" onclick="calcWood()" data-i18n="btnCalculate">Calculate</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div class="input-field"><label><span data-i18n="labelUnitPrice">Unit Price</span> <span id="wood-price-unit">(CNY/m³)</span></label><input type="number" id="wood-price" placeholder="0.00" step="any" min="0" oninput="calcWood()"></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTotalPrice">Total Cost</span><span class="result-value" id="wood-total">— CNY</span></div>
+            </div>
+            <p class="note" data-i18n="woodNote">* Theoretical volume. Please account for processing allowance and waste.</p>
+        </div>
+
+        <!-- Tile Calculator -->
+        <div class="calc-card hidden" id="panel-tile">
+            <h3>🟫 <span data-i18n="tileTitle">Floor Tile Estimator</span></h3>
+            <p class="desc" data-i18n="tileDesc">Enter floor dimensions or total area to estimate tiles and cost.</p>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelTileLength">Floor Length</span> <span class="unit-hint" id="unit-hint-tile-floor-length">(m)</span></label><input type="number" id="tile-floor-length" placeholder="6" step="any" min="0" oninput="calcTile()"></div>
+                <div class="input-field"><label><span data-i18n="labelTileWidth">Floor Width</span> <span class="unit-hint" id="unit-hint-tile-floor-width">(m)</span></label><input type="number" id="tile-floor-width" placeholder="5" step="any" min="0" oninput="calcTile()"></div>
+            </div>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelDirectArea">Total Area (optional)</span> <span class="unit-hint" id="tile-area-unit-label">(m²)</span></label><input type="number" id="tile-direct-area" placeholder="30" step="any" min="0" oninput="calcTile()"></div>
+            </div>
+            <div class="input-group">
+                <div class="input-field"><label><span data-i18n="labelTileSizeLength">Tile Length</span> <span class="unit-hint" id="unit-hint-tile-size-length">(cm)</span></label><input type="number" id="tile-size-length" placeholder="60" step="any" min="0" oninput="calcTile()"></div>
+                <div class="input-field"><label><span data-i18n="labelTileSizeWidth">Tile Width</span> <span class="unit-hint" id="unit-hint-tile-size-width">(cm)</span></label><input type="number" id="tile-size-width" placeholder="60" step="any" min="0" oninput="calcTile()"></div>
+                <div class="input-field"><label><span data-i18n="labelWaste">Waste (%)</span></label><input type="number" id="tile-waste" placeholder="5" value="5" step="any" min="0" max="100" oninput="calcTile()"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-item"><span class="result-label" data-i18n="resultFloorArea">Floor Area</span><span class="result-value" id="tile-area">— m²</span></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTileCount">Tiles Needed</span><span class="result-value" id="tile-count">— pcs</span></div>
+                <button class="btn-calc" onclick="calcTile()" data-i18n="btnCalculate">Calculate</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div class="input-field"><label><span data-i18n="labelUnitPrice">Unit Price</span> <span id="tile-price-unit">(CNY/pcs)</span></label><input type="number" id="tile-price" placeholder="0.00" step="any" min="0" oninput="calcTile()"></div>
+                <div class="result-item"><span class="result-label" data-i18n="resultTotalPrice">Total Cost</span><span class="result-value" id="tile-total">— CNY</span></div>
+            </div>
+            <p class="note" data-i18n="tileNote">* If total area entered, length & width are ignored. Waste included.</p>
+        </div>
+
+        <!-- Pro Teaser -->
+        <aside class="pro-teaser" id="pro">
+            <span class="pro-text">💎 <strong data-i18n="proTeaserTitle">Upgrade to Pro:</strong> <span data-i18n="proTeaserDesc">Save projects, export professional reports, unlock PDF AI Q&A and photo estimation.</span></span>
+            <button class="btn-pill accent" onclick="alert('Pro version coming soon!')" data-i18n="proTeaserBtn">Learn About Pro →</button>
+        </aside>
+
+        <!-- CTA -->
+        <section class="cta" id="pricing">
+            <h2 data-i18n="ctaTitle">Ready to boost productivity?</h2>
+            <p data-i18n="ctaSub">Free covers essentials. Pro unlocks PDF Q&A, photo estimation, and more.</p>
+            <button class="btn-white" onclick="alert('Pro coming soon!')" data-i18n="ctaBtn">Upgrade to Pro 🔥</button>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p data-i18n="footerCopyright">© 2026 Mai Zhiye / BuildCalc Pro. All rights reserved.</p>
+        <p style="font-size:0.75rem;margin-top:4px;" data-i18n="footerDisclaimer">* All calculations are for reference only.</p>
+    </footer>
+
+    <script>
+        (function() {
+            const i18n = {
+                zh: {
+                    btnMetric:'公制', btnImperial:'英制',
+                    btnLangZH:'简', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    tabConcrete:'混凝土', tabRebar:'钢筋', tabBrick:'砖墙', tabWood:'木材', tabTile:'瓷砖',
+                    concreteTitle:'混凝土体积与重量计算器', concreteDesc:'输入结构尺寸，计算体积、重量及总价。',
+                    rebarTitle:'钢筋重量计算器', rebarDesc:'输入直径与总长，计算重量及总价。',
+                    brickTitle:'砖墙材料估算器', brickDesc:'输入墙体尺寸，估算砖块、砂浆及总价。',
+                    woodTitle:'木材材积计算器', woodDesc:'输入长宽厚，计算单根材积及总价。',
+                    tileTitle:'地砖用量估算器', tileDesc:'输入房间尺寸或总面积，计算所需瓷砖及总价。',
+                    labelLength:'长度', labelWidth:'宽度', labelHeight:'高度/厚度',
+                    labelDiameter:'钢筋直径', labelTotalLength:'总长度',
+                    labelWallLength:'墙长', labelWallHeight:'墙高',
+                    labelWoodLength:'长度', labelWoodWidth:'宽度', labelWoodThick:'厚度',
+                    labelTileLength:'房间长度', labelTileWidth:'房间宽度', labelTileSizeLength:'瓷砖长度', labelTileSizeWidth:'瓷砖宽度', labelWaste:'损耗率 (%)',
+                    labelDirectArea:'直接输入面积 (选填)',
+                    resultVolume:'体积', resultWeight:'重量', resultPerMeter:'每米重量',
+                    resultWallArea:'墙体面积', resultBrickCount:'砖块数量', resultMortar:'砂浆用量',
+                    resultFloorArea:'地面面积', resultTileCount:'所需瓷砖',
+                    labelUnitPrice:'单价', resultTotalPrice:'总价',
+                    btnCalculate:'计算',
+                    concreteNote:'* 按常规混凝土密度', concreteNoteSuffix:'估算，实际请以配合比为准。',
+                    rebarNote:'* 按钢材密度', rebarNoteSuffix:'计算。',
+                    brickNote:'* 基于标准砖 240×115×53mm，灰缝10mm，每平米约128块。',
+                    woodNote:'* 理论材积，实际采购请考虑加工余量和损耗。',
+                    tileNote:'* 若填写房间总面积，则忽略长宽。已含损耗。',
+                    proTeaserTitle:'升级 Pro 版：', proTeaserDesc:'保存方案、导出专业报告、解锁 PDF 图纸 AI 问答与拍照估数功能。', proTeaserBtn:'了解 Pro →',
+                    ctaTitle:'准备好提升效率了吗？', ctaSub:'免费版覆盖核心计算，Pro 版解锁 PDF 问答、拍照估数等高级功能。', ctaBtn:'升级至 Pro 版 🔥',
+                    footerCopyright:'© 2026 麦致烨 / BuildCalc Pro - 免费建筑材料计算器合集 保留所有权利。',
+                    footerDisclaimer:'* 所有计算结果仅供参考，实际施工请依据专业规范和现场条件。',
+                    unitM3:'m³', unitKg:'kg', unitM2:'m²', unitPieces:'块', unitKgPerM:'kg/m',
+                },
+                'zh-Hant': {
+                    btnMetric:'公制', btnImperial:'英制',
+                    btnLangZH:'簡', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    tabConcrete:'混凝土', tabRebar:'鋼筋', tabBrick:'磚牆', tabWood:'木材', tabTile:'瓷磚',
+                    concreteTitle:'混凝土體積與重量計算器', concreteDesc:'輸入結構尺寸，計算體積、重量及總價。',
+                    rebarTitle:'鋼筋重量計算器', rebarDesc:'輸入直徑與總長，計算重量及總價。',
+                    brickTitle:'磚牆材料估算器', brickDesc:'輸入牆體尺寸，估算磚塊、砂漿及總價。',
+                    woodTitle:'木材材積計算器', woodDesc:'輸入長寬厚，計算單根材積及總價。',
+                    tileTitle:'地磚用量估算器', tileDesc:'輸入房間尺寸或總面積，計算所需瓷磚及總價。',
+                    labelLength:'長度', labelWidth:'寬度', labelHeight:'高度/厚度',
+                    labelDiameter:'鋼筋直徑', labelTotalLength:'總長度',
+                    labelWallLength:'牆長', labelWallHeight:'牆高',
+                    labelWoodLength:'長度', labelWoodWidth:'寬度', labelWoodThick:'厚度',
+                    labelTileLength:'房間長度', labelTileWidth:'房間寬度', labelTileSizeLength:'瓷磚長度', labelTileSizeWidth:'瓷磚寬度', labelWaste:'損耗率 (%)',
+                    labelDirectArea:'直接輸出面積 (選填)',
+                    resultVolume:'體積', resultWeight:'重量', resultPerMeter:'每米重量',
+                    resultWallArea:'牆體面積', resultBrickCount:'磚塊數量', resultMortar:'砂漿用量',
+                    resultFloorArea:'地面面積', resultTileCount:'所需瓷磚',
+                    labelUnitPrice:'單價', resultTotalPrice:'總價',
+                    btnCalculate:'計算',
+                    concreteNote:'* 按常規混凝土密度', concreteNoteSuffix:'估算，實際請以配合比為準。',
+                    rebarNote:'* 按鋼材密度', rebarNoteSuffix:'計算。',
+                    brickNote:'* 基於標準磚 240×115×53mm，灰縫10mm，每平米約128塊。',
+                    woodNote:'* 理論材積，實際採購請考慮加工餘量和損耗。',
+                    tileNote:'* 若填寫房間總面積，則忽略長寬。已含損耗。',
+                    proTeaserTitle:'升級 Pro 版：', proTeaserDesc:'儲存方案、匯出專業報告、解鎖 PDF 圖紙 AI 問答與拍照估數功能。', proTeaserBtn:'瞭解 Pro →',
+                    ctaTitle:'準備好提升效率了嗎？', ctaSub:'免費版覆蓋核心計算，Pro 版解鎖 PDF 問答、拍照估數等進階功能。', ctaBtn:'升級至 Pro 版 🔥',
+                    footerCopyright:'© 2026 麥致燁 / BuildCalc Pro - 免費建築材料計算機合集 保留所有權利。',
+                    footerDisclaimer:'* 所有計算結果僅供參考，實際施工請依據專業規範和現場條件。',
+                    unitM3:'m³', unitKg:'kg', unitM2:'m²', unitPieces:'塊', unitKgPerM:'kg/m',
+                },
+                en: {
+                    btnMetric:'Metric', btnImperial:'Imperial',
+                    btnLangZH:'简', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    tabConcrete:'Concrete', tabRebar:'Rebar', tabBrick:'Brick', tabWood:'Wood', tabTile:'Tile',
+                    concreteTitle:'Concrete Volume & Weight Calculator', concreteDesc:'Enter dimensions to calculate volume, weight, and total cost.',
+                    rebarTitle:'Rebar Weight Calculator', rebarDesc:'Enter diameter and total length to calculate weight and cost.',
+                    brickTitle:'Brick Wall Estimator', brickDesc:'Enter wall dimensions to estimate bricks, mortar, and cost.',
+                    woodTitle:'Wood Volume Calculator', woodDesc:'Enter dimensions to calculate single piece volume and cost.',
+                    tileTitle:'Floor Tile Estimator', tileDesc:'Enter floor size or total area to estimate tiles and cost.',
+                    labelLength:'Length', labelWidth:'Width', labelHeight:'Height/Thickness',
+                    labelDiameter:'Diameter', labelTotalLength:'Total Length',
+                    labelWallLength:'Wall Length', labelWallHeight:'Wall Height',
+                    labelWoodLength:'Length', labelWoodWidth:'Width', labelWoodThick:'Thickness',
+                    labelTileLength:'Floor Length', labelTileWidth:'Floor Width', labelTileSizeLength:'Tile Length', labelTileSizeWidth:'Tile Width', labelWaste:'Waste (%)',
+                    labelDirectArea:'Total Area (optional)',
+                    resultVolume:'Volume', resultWeight:'Weight', resultPerMeter:'Weight per Meter',
+                    resultWallArea:'Wall Area', resultBrickCount:'Brick Count', resultMortar:'Mortar Volume',
+                    resultFloorArea:'Floor Area', resultTileCount:'Tiles Needed',
+                    labelUnitPrice:'Unit Price', resultTotalPrice:'Total Cost',
+                    btnCalculate:'Calculate',
+                    concreteNote:'* Based on concrete density of', concreteNoteSuffix:'.',
+                    rebarNote:'* Based on steel density of', rebarNoteSuffix:'.',
+                    brickNote:'* Based on standard brick 240×115×53mm with 10mm mortar joint, approx. 128 bricks per m².',
+                    woodNote:'* Theoretical volume. Please account for processing allowance and waste.',
+                    tileNote:'* If total area entered, length & width are ignored. Waste included.',
+                    proTeaserTitle:'Upgrade to Pro:', proTeaserDesc:'Save projects, export professional reports, unlock PDF AI Q&A and photo estimation.', proTeaserBtn:'Learn About Pro →',
+                    ctaTitle:'Ready to boost productivity?', ctaSub:'Free covers essentials. Pro unlocks PDF Q&A, photo estimation, and more.', ctaBtn:'Upgrade to Pro 🔥',
+                    footerCopyright:'© 2026 Mai Zhiye / BuildCalc Pro. All rights reserved.',
+                    footerDisclaimer:'* All calculations are for reference only.',
+                    unitM3:'m³', unitKg:'kg', unitM2:'m²', unitPieces:'pcs', unitKgPerM:'kg/m',
+                },
+                ja: {
+                    btnMetric:'メートル', btnImperial:'フィート',
+                    btnLangZH:'簡', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    tabConcrete:'コンクリート', tabRebar:'鉄筋', tabBrick:'レンガ', tabWood:'木材', tabTile:'タイル',
+                    concreteTitle:'コンクリート体積・重量計算', concreteDesc:'寸法を入力して体積、重量、合計金額を計算。',
+                    rebarTitle:'鉄筋重量計算', rebarDesc:'直径と全長から重量と金額を計算。',
+                    brickTitle:'レンガ壁計算', brickDesc:'壁の寸法からレンガ数、モルタル量、金額を推定。',
+                    woodTitle:'木材材積計算', woodDesc:'寸法から材積と金額を計算。',
+                    tileTitle:'床タイル計算', tileDesc:'床面積または寸法からタイル枚数と金額を計算。',
+                    labelLength:'長さ', labelWidth:'幅', labelHeight:'高さ/厚さ',
+                    labelDiameter:'直径', labelTotalLength:'全長',
+                    labelWallLength:'壁長さ', labelWallHeight:'壁高さ',
+                    labelWoodLength:'長さ', labelWoodWidth:'幅', labelWoodThick:'厚さ',
+                    labelTileLength:'床長さ', labelTileWidth:'床幅', labelTileSizeLength:'タイル長さ', labelTileSizeWidth:'タイル幅', labelWaste:'ロス率 (%)',
+                    labelDirectArea:'面積 (任意)',
+                    resultVolume:'体積', resultWeight:'重量', resultPerMeter:'1m当たり重量',
+                    resultWallArea:'壁面積', resultBrickCount:'レンガ数', resultMortar:'モルタル量',
+                    resultFloorArea:'床面積', resultTileCount:'必要タイル数',
+                    labelUnitPrice:'単価', resultTotalPrice:'合計金額',
+                    btnCalculate:'計算',
+                    concreteNote:'* コンクリート密度', concreteNoteSuffix:'で計算。',
+                    rebarNote:'* 鋼材密度', rebarNoteSuffix:'で計算。',
+                    brickNote:'* 標準レンガ 240×115×53mm、目地10mm、1m²約128枚。',
+                    woodNote:'* 理論材積。加工代・ロスを考慮してください。',
+                    tileNote:'* 面積直接入力時は長さ・幅を無視。ロス含む。',
+                    proTeaserTitle:'Pro版にアップグレード：', proTeaserDesc:'プロジェクトの保存、専門レポートの出力、PDF図面AI Q&Aと写真による材料推定機能。', proTeaserBtn:'Proを詳しく見る →',
+                    ctaTitle:'生産性を向上させる準備は？', ctaSub:'無料版は基本計算をカバー。Pro版はPDF Q&A、写真推定など。', ctaBtn:'Pro版にアップグレード 🔥',
+                    footerCopyright:'© 2026 Mai Zhiye / BuildCalc Pro. 無断転載禁止。',
+                    footerDisclaimer:'* 計算結果は参考値です。',
+                    unitM3:'m³', unitKg:'kg', unitM2:'m²', unitPieces:'枚', unitKgPerM:'kg/m',
+                }
+            };
+
+            let currentUnit = 'metric';
+            let currentLang = 'en';
+            let currentCurrency = 'CNY';
+            let activeTab = 'concrete';
+
+            const FT_TO_M = 0.3048, IN_TO_M = 0.0254, KG_TO_LB = 2.20462;
+            const M3_TO_YD3 = 1.30795, M3_TO_FT3 = 35.3147, M2_TO_FT2 = 10.7639;
+            const CONCRETE_DENSITY_KG = 2400, STEEL_DENSITY_KG = 7850;
+            const currencySymbols = { CNY: 'CNY', USD: 'USD', JPY: 'JPY' };
+
+            function fmt(num, decimals) {
+                if (isNaN(num) || num === null) return '—';
+                const opts = { minimumFractionDigits: decimals, maximumFractionDigits: decimals };
+                if (decimals === 0) opts.minimumFractionDigits = opts.maximumFractionDigits = 0;
+                let locale = 'en-US';
+                if (currentLang === 'zh') locale = 'zh-CN';
+                else if (currentLang === 'zh-Hant') locale = 'zh-Hant';
+                else if (currentLang === 'ja') locale = 'ja-JP';
+                return num.toLocaleString(locale, opts);
+            }
+
+            function setResult(id, num, unit, decimals = 2) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = `${fmt(num, decimals)} ${unit}`;
+            }
+
+            function getValInMeters(id) { const raw = parseFloat(document.getElementById(id)?.value); if (isNaN(raw) || raw < 0) return NaN; return currentUnit === 'imperial' ? raw * FT_TO_M : raw; }
+            function getDiaInMeters(id) { const raw = parseFloat(document.getElementById(id)?.value); if (isNaN(raw) || raw < 0) return NaN; return currentUnit === 'imperial' ? raw * IN_TO_M : raw / 1000; }
+
+            function calcConcrete() {
+                const l = getValInMeters('conc-length'), w = getValInMeters('conc-width'), h = getValInMeters('conc-height');
+                const dict = i18n[currentLang];
+                if (isNaN(l) || isNaN(w) || isNaN(h) || l <= 0 || w <= 0 || h <= 0) {
+                    setResult('conc-vol', NaN, currentUnit === 'metric' ? dict.unitM3 : 'yd³');
+                    setResult('conc-wt', NaN, currentUnit === 'metric' ? dict.unitKg : 'lb');
+                    setResult('conc-total', NaN, currencySymbols[currentCurrency]);
+                    return;
+                }
+                const volM3 = l * w * h;
+                const weightKg = volM3 * CONCRETE_DENSITY_KG;
+                const displayVol = currentUnit === 'metric' ? volM3 : volM3 * M3_TO_YD3;
+                const displayWt = currentUnit === 'metric' ? weightKg : weightKg * KG_TO_LB;
+                setResult('conc-vol', displayVol, currentUnit === 'metric' ? dict.unitM3 : 'yd³', 3);
+                setResult('conc-wt', displayWt, currentUnit === 'metric' ? dict.unitKg : 'lb', 0);
+                const price = parseFloat(document.getElementById('conc-price')?.value) || 0;
+                setResult('conc-total', displayVol * price, currencySymbols[currentCurrency], 2);
+            }
+
+            function calcRebar() {
+                const diaM = getDiaInMeters('rebar-dia'), lenM = getValInMeters('rebar-length');
+                const dict = i18n[currentLang];
+                if (isNaN(diaM) || isNaN(lenM) || diaM <= 0 || lenM <= 0) {
+                    setResult('rebar-wt', NaN, currentUnit === 'metric' ? dict.unitKg : 'lb');
+                    setResult('rebar-perm', NaN, currentUnit === 'metric' ? dict.unitKgPerM : 'lb/ft');
+                    setResult('rebar-total', NaN, currencySymbols[currentCurrency]);
+                    return;
+                }
+                const areaM2 = Math.PI * diaM * diaM / 4;
+                const weightKg = areaM2 * lenM * STEEL_DENSITY_KG;
+                const perMKg = areaM2 * STEEL_DENSITY_KG;
+                if (currentUnit === 'metric') {
+                    setResult('rebar-wt', weightKg, dict.unitKg, 2);
+                    setResult('rebar-perm', perMKg, dict.unitKgPerM, 3);
+                    const price = parseFloat(document.getElementById('rebar-price')?.value) || 0;
+                    setResult('rebar-total', weightKg * price, currencySymbols[currentCurrency], 2);
+                } else {
+                    const weightLb = weightKg * KG_TO_LB;
+                    const perFtLb = perMKg * KG_TO_LB / (1 / FT_TO_M);
+                    setResult('rebar-wt', weightLb, 'lb', 2);
+                    setResult('rebar-perm', perFtLb, 'lb/ft', 3);
+                    const price = parseFloat(document.getElementById('rebar-price')?.value) || 0;
+                    setResult('rebar-total', weightLb * price, currencySymbols[currentCurrency], 2);
+                }
+            }
+
+            function calcBrick() {
+                const l = getValInMeters('brick-length'), h = getValInMeters('brick-height');
+                const areaM2 = isNaN(l) || isNaN(h) ? NaN : l * h;
+                const dict = i18n[currentLang];
+                if (isNaN(areaM2) || areaM2 <= 0) {
+                    setResult('brick-area', NaN, currentUnit === 'metric' ? dict.unitM2 : 'ft²');
+                    setResult('brick-count', NaN, dict.unitPieces);
+                    setResult('brick-mortar', NaN, currentUnit === 'metric' ? dict.unitM3 : 'yd³');
+                    setResult('brick-total', NaN, currencySymbols[currentCurrency]);
+                    return;
+                }
+                const bricksPerM2 = 128;
+                const brickCount = Math.ceil(areaM2 * bricksPerM2);
+                const mortarM3 = (brickCount / 1000) * 0.65;
+                if (currentUnit === 'metric') {
+                    setResult('brick-area', areaM2, dict.unitM2, 2);
+                    setResult('brick-count', brickCount, dict.unitPieces, 0);
+                    setResult('brick-mortar', mortarM3, dict.unitM3, 3);
+                    const price = parseFloat(document.getElementById('brick-price')?.value) || 0;
+                    setResult('brick-total', brickCount * price, currencySymbols[currentCurrency], 2);
+                } else {
+                    const areaFt2 = areaM2 * M2_TO_FT2;
+                    const brickCountImp = Math.ceil(areaFt2 * 6.8);
+                    const mortarYd3 = mortarM3 * M3_TO_YD3;
+                    setResult('brick-area', areaFt2, 'ft²', 2);
+                    setResult('brick-count', brickCountImp, dict.unitPieces, 0);
+                    setResult('brick-mortar', mortarYd3, 'yd³', 3);
+                    const price = parseFloat(document.getElementById('brick-price')?.value) || 0;
+                    setResult('brick-total', brickCountImp * price, currencySymbols[currentCurrency], 2);
+                }
+            }
+
+            function calcWood() {
+                const l = getValInMeters('wood-length'), w = getValInMeters('wood-width'), t = getValInMeters('wood-thick');
+                const dict = i18n[currentLang];
+                if (isNaN(l) || isNaN(w) || isNaN(t) || l <= 0 || w <= 0 || t <= 0) {
+                    setResult('wood-vol', NaN, currentUnit === 'metric' ? dict.unitM3 : 'ft³');
+                    setResult('wood-total', NaN, currencySymbols[currentCurrency]);
+                    return;
+                }
+                const volM3 = l * w * t;
+                if (currentUnit === 'metric') {
+                    setResult('wood-vol', volM3, dict.unitM3, 4);
+                    const price = parseFloat(document.getElementById('wood-price')?.value) || 0;
+                    setResult('wood-total', volM3 * price, currencySymbols[currentCurrency], 2);
+                } else {
+                    const volFt3 = volM3 * M3_TO_FT3;
+                    setResult('wood-vol', volFt3, 'ft³', 4);
+                    const price = parseFloat(document.getElementById('wood-price')?.value) || 0;
+                    setResult('wood-total', volFt3 * price, currencySymbols[currentCurrency], 2);
+                }
+            }
+
+            function calcTile() {
+                const dict = i18n[currentLang];
+                let floorAreaM2;
+                const directArea = parseFloat(document.getElementById('tile-direct-area')?.value);
+                if (!isNaN(directArea) && directArea > 0) {
+                    floorAreaM2 = currentUnit === 'imperial' ? directArea / M2_TO_FT2 : directArea;
+                } else {
+                    const l = getValInMeters('tile-floor-length'), w = getValInMeters('tile-floor-width');
+                    floorAreaM2 = (!isNaN(l) && !isNaN(w) && l > 0 && w > 0) ? l * w : NaN;
+                }
+                const tileLenRaw = parseFloat(document.getElementById('tile-size-length')?.value);
+                const tileWidRaw = parseFloat(document.getElementById('tile-size-width')?.value);
+                let tileLenM, tileWidM;
+                if (!isNaN(tileLenRaw) && !isNaN(tileWidRaw) && tileLenRaw > 0 && tileWidRaw > 0) {
+                    if (currentUnit === 'metric') { tileLenM = tileLenRaw / 100; tileWidM = tileWidRaw / 100; }
+                    else { tileLenM = tileLenRaw * IN_TO_M; tileWidM = tileWidRaw * IN_TO_M; }
+                } else { tileLenM = tileWidM = NaN; }
+                const waste = parseFloat(document.getElementById('tile-waste')?.value) || 0;
+                if (isNaN(floorAreaM2) || floorAreaM2 <= 0 || isNaN(tileLenM) || isNaN(tileWidM)) {
+                    setResult('tile-area', NaN, currentUnit === 'metric' ? dict.unitM2 : 'ft²');
+                    setResult('tile-count', NaN, dict.unitPieces);
+                    setResult('tile-total', NaN, currencySymbols[currentCurrency]);
+                    return;
+                }
+                const tileArea = tileLenM * tileWidM;
+                const tiles = Math.ceil(floorAreaM2 / tileArea * (1 + waste / 100));
+                const displayArea = currentUnit === 'metric' ? floorAreaM2 : floorAreaM2 * M2_TO_FT2;
+                setResult('tile-area', displayArea, currentUnit === 'metric' ? dict.unitM2 : 'ft²', 2);
+                setResult('tile-count', tiles, dict.unitPieces, 0);
+                const price = parseFloat(document.getElementById('tile-price')?.value) || 0;
+                setResult('tile-total', tiles * price, currencySymbols[currentCurrency], 2);
+            }
+
+            function updateAll() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (i18n[currentLang] && i18n[currentLang][key] !== undefined) el.textContent = i18n[currentLang][key];
+                });
+                document.getElementById('conc-density-ref').textContent = currentUnit === 'metric' ? '2400 kg/m³' : '150 lb/ft³';
+                document.getElementById('steel-density-ref').textContent = currentUnit === 'metric' ? '7850 kg/m³' : '490 lb/ft³';
+                const curSym = currencySymbols[currentCurrency];
+                const volUnit = currentUnit === 'metric' ? i18n[currentLang].unitM3 : 'yd³';
+                const weightUnit = currentUnit === 'metric' ? i18n[currentLang].unitKg : 'lb';
+                const pieceUnit = i18n[currentLang].unitPieces;
+                document.getElementById('conc-price-unit').textContent = `(${curSym}/${volUnit})`;
+                document.getElementById('rebar-price-unit').textContent = `(${curSym}/${weightUnit})`;
+                document.getElementById('brick-price-unit').textContent = `(${curSym}/${pieceUnit})`;
+                document.getElementById('wood-price-unit').textContent = `(${curSym}/${volUnit})`;
+                document.getElementById('tile-price-unit').textContent = `(${curSym}/${pieceUnit})`;
+                const lenUnit = currentUnit === 'metric' ? 'm' : 'ft';
+                const diaUnit = currentUnit === 'metric' ? 'mm' : 'in';
+                const tileUnit = currentUnit === 'metric' ? 'cm' : 'in';
+                const areaUnit = currentUnit === 'metric' ? 'm²' : 'ft²';
+                document.querySelectorAll('.unit-hint').forEach(el => {
+                    if (el.id.includes('length') || el.id.includes('width') || el.id.includes('height') || el.id.includes('thick')) el.textContent = `(${lenUnit})`;
+                    else if (el.id.includes('diameter')) el.textContent = `(${diaUnit})`;
+                    else if (el.id.includes('tile-size')) el.textContent = `(${tileUnit})`;
+                    else if (el.id === 'tile-area-unit-label') el.textContent = `(${areaUnit})`;
+                });
+                (activeTab === 'concrete' ? calcConcrete : activeTab === 'rebar' ? calcRebar : activeTab === 'brick' ? calcBrick : activeTab === 'wood' ? calcWood : calcTile)();
+            }
+
+            function switchUnit(unit) {
+                currentUnit = unit;
+                document.getElementById('btnUnitMetric').classList.toggle('active', unit === 'metric');
+                document.getElementById('btnUnitImperial').classList.toggle('active', unit === 'imperial');
+                updateAll();
+            }
+            function switchLang(lang) {
+                currentLang = lang;
+                document.getElementById('btnLangZH').classList.toggle('active', lang === 'zh');
+                document.getElementById('btnLangZHHant').classList.toggle('active', lang === 'zh-Hant');
+                document.getElementById('btnLangEN').classList.toggle('active', lang === 'en');
+                document.getElementById('btnLangJA').classList.toggle('active', lang === 'ja');
+                document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'zh-Hant' ? 'zh-Hant' : (lang === 'ja' ? 'ja' : 'en'));
+                updateAll();
+            }
+            function switchCurrency(cur) {
+                currentCurrency = cur;
+                document.getElementById('btnCurCNY').classList.toggle('active', cur === 'CNY');
+                document.getElementById('btnCurUSD').classList.toggle('active', cur === 'USD');
+                document.getElementById('btnCurJPY').classList.toggle('active', cur === 'JPY');
+                updateAll();
+            }
+            function switchTab(tab, updateUrl = false) {
+                activeTab = tab;
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+                document.querySelectorAll('.calc-card').forEach(card => card.classList.add('hidden'));
+                document.getElementById('panel-' + tab)?.classList.remove('hidden');
+                updateAll();
+                if (updateUrl) {
+                    const url = new URL(window.location);
+                    url.searchParams.set('tab', tab);
+                    window.history.replaceState({}, '', url);
+                }
+            }
+
+            window.calcConcrete = calcConcrete;
+            window.calcRebar = calcRebar;
+            window.calcBrick = calcBrick;
+            window.calcWood = calcWood;
+            window.calcTile = calcTile;
+            window.switchTab = switchTab;
+            window.switchUnit = switchUnit;
+            window.switchLang = switchLang;
+            window.switchCurrency = switchCurrency;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const params = new URLSearchParams(window.location.search);
+                const tabParam = params.get('tab');
+                const langParam = params.get('lang');
+                if (langParam && ['zh','zh-Hant','en','ja'].includes(langParam)) switchLang(langParam);
+                else switchLang('en');
+                if (tabParam && ['concrete','rebar','brick','wood','tile'].includes(tabParam)) switchTab(tabParam, true);
+                else switchTab('concrete', true);
+            });
+        })();
+    </script>
+</body>
+</html>

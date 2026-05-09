@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BuildCalc Pro - Professional construction material calculator. Accurately calculate concrete, rebar, brick, wood, and tile quantities. Supports multi-language, multi-currency, and metric/imperial switching. Mobile app coming soon.">
+    <title>BuildCalc Pro - Professional Construction Calculator</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BuildCalc Pro — Free Construction Calculator">
+    <meta property="og:description" content="Concrete, brick, tile, wood, rebar — 5 calculators available for free. Multilingual, no signup required.">
+    <meta property="og:image" content="https://your-domain.com/og-image.png">
+    <meta property="og:url" content="https://your-domain.com/">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --text: #1a2b34;
+            --text-secondary: #5e6f7b;
+            --text-muted: #8b9aa6;
+            --border: #e2e8ed;
+            --accent: #1e6f8c;
+            --accent-light: #e6f3f8;
+            --accent-dark: #155a72;
+            --green: #2d8a56;
+            --green-light: #e8f5ee;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+            --shadow-lg: 0 2px 8px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.04);
+            --shadow-xl: 0 4px 16px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --font: 'Inter', 'PingFang SC', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans JP', 'Helvetica Neue', system-ui, sans-serif;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; }
+        .navbar {
+            position:fixed; top:0; left:0; right:0; z-index:1000;
+            background:rgba(255,255,255,0.85); backdrop-filter:blur(16px);
+            border-bottom:1px solid var(--border); padding:14px 24px; transition:var(--transition);
+        }
+        .navbar.scrolled { box-shadow:var(--shadow-lg); background:rgba(255,255,255,0.95); }
+        .navbar-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+        .logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.3rem; color:var(--accent); text-decoration:none; }
+        .logo-icon { width:40px; height:40px; border-radius:var(--radius-sm); background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#fff; }
+        .nav-links { display:flex; gap:24px; list-style:none; }
+        .nav-links a { text-decoration:none; color:var(--text-secondary); font-weight:500; font-size:0.95rem; transition:var(--transition); }
+        .nav-links a:hover { color:var(--accent); }
+        .btn-pill { padding:8px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); font-size:0.85rem; font-weight:500; cursor:pointer; color:var(--text-secondary); white-space:nowrap; transition:var(--transition); font-family:var(--font); }
+        .btn-pill.active { background:var(--accent-light); border-color:var(--accent); color:var(--accent-dark); font-weight:600; }
+        .hero {
+            min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center;
+            padding:120px 24px 80px; position:relative; overflow:hidden;
+            background:linear-gradient(160deg, #f0f7fa 0%, #f8fafb 40%, #f5f0e8 100%);
+        }
+        .hero::before {
+            content:''; position:absolute; top:-50%; left:-20%; width:140%; height:200%;
+            background:radial-gradient(circle at 30% 50%, rgba(30,111,140,0.06) 0%, transparent 50%),
+                       radial-gradient(circle at 70% 30%, rgba(194,120,10,0.04) 0%, transparent 50%);
+            animation: heroFloat 20s ease-in-out infinite;
+        }
+        @keyframes heroFloat {
+            0%,100% { transform:translate(0,0) rotate(0deg); }
+            33% { transform:translate(2%,-1%) rotate(1deg); }
+            66% { transform:translate(-1%,1%) rotate(-0.5deg); }
+        }
+        .hero-content { position:relative; z-index:1; max-width:800px; }
+        .hero-badge { display:inline-block; padding:6px 16px; border-radius:20px; background:var(--green-light); color:var(--green); font-weight:600; font-size:0.85rem; margin-bottom:20px; animation: fadeInUp 0.8s ease; }
+        .hero h1 { font-size:3.2rem; font-weight:800; letter-spacing:-1px; line-height:1.2; margin-bottom:16px; animation: fadeInUp 0.8s 0.1s ease both; }
+        .hero h1 span { background:linear-gradient(135deg, var(--accent), #0e4d63); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .hero-subtitle { font-size:1.2rem; color:var(--text-secondary); max-width:550px; margin:0 auto 32px; line-height:1.6; animation: fadeInUp 0.8s 0.2s ease both; }
+        .hero-actions { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; animation: fadeInUp 0.8s 0.3s ease both; }
+        .hero-stats { display:flex; gap:40px; justify-content:center; margin-top:48px; flex-wrap:wrap; animation: fadeInUp 0.8s 0.4s ease both; }
+        .stat-item { text-align:center; }
+        .stat-number { font-size:2.4rem; font-weight:800; color:var(--accent); }
+        .stat-label { font-size:0.85rem; color:var(--text-muted); }
+        @keyframes fadeInUp {
+            from { opacity:0; transform:translateY(30px); }
+            to { opacity:1; transform:translateY(0); }
+        }
+        .section { padding:60px 24px; max-width:1100px; margin:0 auto; }
+        .section-title { text-align:center; font-size:2.2rem; font-weight:700; margin-bottom:12px; }
+        .section-subtitle { text-align:center; color:var(--text-muted); margin-bottom:48px; font-size:1.05rem; }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; }
+        .card {
+            background:var(--surface); border-radius:var(--radius-xl); padding:32px 28px; box-shadow:var(--shadow);
+            transition:var(--transition); border:1px solid transparent; cursor:pointer; text-decoration:none; color:inherit;
+            display:flex; flex-direction:column; gap:16px; position:relative; overflow:hidden;
+        }
+        .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-xl); border-color:var(--accent); }
+        .card-icon { width:52px; height:52px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; font-size:1.6rem; }
+        .card-icon.concrete { background:#e8f4f8; color:#1e6f8c; }
+        .card-icon.rebar { background:#fdf2f1; color:#c0392b; }
+        .card-icon.brick { background:#fef9ee; color:#c2780a; }
+        .card-icon.wood { background:#e8f5ee; color:#2d8a56; }
+        .card-icon.tile { background:#f3e8ff; color:#7c3aed; }
+        .card h3 { font-size:1.2rem; font-weight:650; }
+        .card p { font-size:0.9rem; color:var(--text-secondary); line-height:1.5; }
+        .card-arrow { position:absolute; top:20px; right:20px; font-size:1.2rem; color:var(--text-muted); transition:var(--transition); }
+        .card:hover .card-arrow { color:var(--accent); transform:translateX(4px); }
+        .features { background:var(--surface); border-radius:var(--radius-2xl); padding:60px 40px; box-shadow:var(--shadow); }
+        .features-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:32px; }
+        .feature-item { text-align:center; padding:20px; }
+        .feature-icon { font-size:2.5rem; margin-bottom:12px; }
+        .feature-item h4 { font-size:1.1rem; font-weight:650; margin-bottom:6px; }
+        .feature-item p { font-size:0.9rem; color:var(--text-secondary); }
+        .app-banner { background:linear-gradient(135deg, #1a2b34, #2d4a5a); border-radius:var(--radius-2xl); padding:40px; text-align:center; color:#fff; margin-top:40px; }
+        .app-banner h3 { font-size:1.6rem; margin-bottom:12px; }
+        .app-banner p { font-size:1rem; opacity:0.85; margin-bottom:24px; }
+        .app-badge-row { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+        .app-badge { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:var(--radius); background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); color:#fff; font-weight:600; font-size:0.95rem; cursor:pointer; transition:var(--transition); }
+        .app-badge:hover { background:rgba(255,255,255,0.2); }
+        .cta { text-align:center; padding:60px 24px; background:linear-gradient(135deg, var(--accent), #0e4d63); border-radius:var(--radius-2xl); color:#fff; }
+        .cta h2 { font-size:2rem; margin-bottom:16px; }
+        .cta p { font-size:1.05rem; margin-bottom:32px; opacity:0.9; }
+        .btn-white { padding:12px 28px; border-radius:24px; border:none; background:#fff; color:var(--accent); font-weight:700; font-size:1rem; cursor:pointer; transition:var(--transition); font-family:var(--font); }
+        .btn-white:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+        .footer { text-align:center; padding:40px 24px; font-size:0.85rem; color:var(--text-muted); border-top:1px solid var(--border); }
+        .footer a { color:var(--accent); text-decoration:none; }
+        @media (max-width:768px) {
+            .hero h1 { font-size:2.2rem; }
+            .nav-links { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a class="logo" href="#home"><span class="logo-icon">🏗️</span> BuildCalc Pro</a>
+            <ul class="nav-links">
+                <li><a href="#home" data-i18n="navHome">Home</a></li>
+                <li><a href="#calculators" data-i18n="navCalcs">Calculators</a></li>
+                <li><a href="#features" data-i18n="navFeatures">Features</a></li>
+                <li><a href="#app" data-i18n="navApp">App</a></li>
+                <li><a href="#pricing" data-i18n="navPricing">Pricing</a></li>
+            </ul>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn-pill" id="btnLangZH" onclick="switchLang('zh')">🇨🇳 <span data-i18n="btnLangZH">简</span></button>
+                <button class="btn-pill" id="btnLangZHHant" onclick="switchLang('zh-Hant')">🇭🇰 <span data-i18n="btnLangZHHant">繁</span></button>
+                <button class="btn-pill active" id="btnLangEN" onclick="switchLang('en')">🇺🇸 <span data-i18n="btnLangEN">EN</span></button>
+                <button class="btn-pill" id="btnLangJA" onclick="switchLang('ja')">🇯🇵 <span data-i18n="btnLangJA">日</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge" data-i18n="heroBadge">🚀 Free Online Tools · No Signup</div>
+            <h1><span data-i18n="heroTitle">Construction Material</span><br><span data-i18n="heroTitle2">Calculations Made Simple.</span></h1>
+            <p class="hero-subtitle" data-i18n="heroSub">Covering concrete, rebar, brick, wood, and tile. Multi-currency, metric/imperial. Mobile app coming soon!</p>
+            <div class="hero-actions">
+                <a href="calculator.html#calculators" class="btn-pill" style="font-size:1.1rem;padding:14px 32px;text-decoration:none;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;" data-i18n="heroCTA">Try Free Tools →</a>
+                <a href="calculator.html#pricing" class="btn-pill" style="font-size:1.1rem;padding:14px 32px;text-decoration:none;" data-i18n="heroPro">Learn Pro</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item"><div class="stat-number">5+</div><div class="stat-label" data-i18n="statCalcs">Calculators</div></div>
+                <div class="stat-item"><div class="stat-number">4</div><div class="stat-label" data-i18n="statLangs">Languages</div></div>
+                <div class="stat-item"><div class="stat-number">3</div><div class="stat-label" data-i18n="statCurrencies">Currencies</div></div>
+                <div class="stat-item"><div class="stat-number">📱</div><div class="stat-label" data-i18n="statApp">App Coming</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="calculators">
+        <h2 class="section-title" data-i18n="calcsTitle">Choose Your Calculator</h2>
+        <p class="section-subtitle" data-i18n="calcsSub">Click a card to jump to the tool</p>
+        <div class="cards-grid">
+            <a class="card" href="calculator.html?tab=concrete">
+                <span class="card-arrow">→</span>
+                <div class="card-icon concrete">🧱</div>
+                <h3 data-i18n="cardConcrete">Concrete Calculator</h3>
+                <p data-i18n="cardConcreteDesc">Volume, weight & total cost estimation.</p>
+            </a>
+            <a class="card" href="calculator.html?tab=rebar">
+                <span class="card-arrow">→</span>
+                <div class="card-icon rebar">🔩</div>
+                <h3 data-i18n="cardRebar">Rebar Calculator</h3>
+                <p data-i18n="cardRebarDesc">Diameter & length → weight & cost.</p>
+            </a>
+            <a class="card" href="calculator.html?tab=brick">
+                <span class="card-arrow">→</span>
+                <div class="card-icon brick">🧱</div>
+                <h3 data-i18n="cardBrick">Brick Calculator</h3>
+                <p data-i18n="cardBrickDesc">Brick count & mortar volume.</p>
+            </a>
+            <a class="card" href="calculator.html?tab=wood">
+                <span class="card-arrow">→</span>
+                <div class="card-icon wood">🪵</div>
+                <h3 data-i18n="cardWood">Wood Calculator</h3>
+                <p data-i18n="cardWoodDesc">Single piece volume calculation.</p>
+            </a>
+            <a class="card" href="calculator.html?tab=tile">
+                <span class="card-arrow">→</span>
+                <div class="card-icon tile">🟫</div>
+                <h3 data-i18n="cardTile">Tile Calculator</h3>
+                <p data-i18n="cardTileDesc">Floor area ÷ tile size = precise quantity.</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="section" id="app">
+        <div class="app-banner">
+            <h3 data-i18n="appTitle">📱 Mobile App Coming Soon</h3>
+            <p data-i18n="appDesc">We are building native iOS & Android apps for BuildCalc Pro. Enjoy offline access, project saving, and cloud sync.</p>
+            <div class="app-badge-row">
+                <div class="app-badge" onclick="alert('iOS coming soon!')">🍎 App Store</div>
+                <div class="app-badge" onclick="alert('Android coming soon!')">🤖 Google Play</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="features">
+        <div class="features">
+            <h2 class="section-title" data-i18n="featuresTitle">Why BuildCalc Pro?</h2>
+            <p class="section-subtitle" data-i18n="featuresSub">Designed for professionals and DIY enthusiasts</p>
+            <div class="features-grid">
+                <div class="feature-item"><div class="feature-icon">🌍</div><h4 data-i18n="feat1Title">Multilingual</h4><p data-i18n="feat1Desc">Chinese, English, Japanese — switch seamlessly.</p></div>
+                <div class="feature-item"><div class="feature-icon">💱</div><h4 data-i18n="feat2Title">Multi-Currency</h4><p data-i18n="feat2Desc">CNY · USD · JPY independent switching.</p></div>
+                <div class="feature-item"><div class="feature-icon">📐</div><h4 data-i18n="feat3Title">Metric/Imperial</h4><p data-i18n="feat3Desc">Auto unit conversion for global users.</p></div>
+                <div class="feature-item"><div class="feature-icon">⚡</div><h4 data-i18n="feat4Title">Real-Time</h4><p data-i18n="feat4Desc">Instant results as you type.</p></div>
+                <div class="feature-item"><div class="feature-icon">📱</div><h4 data-i18n="feat5Title">App Coming</h4><p data-i18n="feat5Desc">Native iOS & Android apps in development.</p></div>
+                <div class="feature-item"><div class="feature-icon">🔒</div><h4 data-i18n="feat6Title">No Signup</h4><p data-i18n="feat6Desc">Use immediately, privacy protected.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pricing">
+        <div class="cta">
+            <h2 data-i18n="ctaTitle">Ready to boost productivity?</h2>
+            <p data-i18n="ctaSub">Free covers essentials. Pro unlocks PDF Q&A, photo estimation, and more.</p>
+            <a href="calculator.html#pro" class="btn-white" data-i18n="ctaBtn">Upgrade to Pro 🔥</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 <strong>Mai Zhiye / BuildCalc Pro</strong> · <span data-i18n="footerText">Free Construction Calculator Collection</span></p>
+        <p style="font-size:0.75rem;margin-top:4px;" data-i18n="footerDisclaimer">* All calculations are for reference only.</p>
+    </footer>
+
+    <script>
+        (function() {
+            const i18n = {
+                zh: {
+                    navHome:'首页', navCalcs:'计算器', navFeatures:'特性', navApp:'App', navPricing:'定价',
+                    btnLangZH:'简', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    heroBadge:'🚀 免费在线工具 · 无需注册', heroTitle:'建筑材料计算，', heroTitle2:'从未如此简单。',
+                    heroSub:'覆盖混凝土、钢筋、砖墙、木材、瓷砖五大品类，支持单价估算、多货币切换、公制/英制实时转换。移动端App即将上线。',
+                    heroCTA:'立即体验免费工具 →', heroPro:'了解 Pro 版',
+                    statCalcs:'专业计算器', statLangs:'界面语言', statCurrencies:'结算货币', statApp:'App 开发中',
+                    calcsTitle:'选择您的计算器', calcsSub:'点击卡片，跳转到对应计算工具',
+                    cardConcrete:'混凝土计算器', cardConcreteDesc:'体积、重量、总价一键估算。',
+                    cardRebar:'钢筋计算器', cardRebarDesc:'直径与长度 → 重量与成本。',
+                    cardBrick:'砖墙计算器', cardBrickDesc:'砖块数量、砂浆用量预估。',
+                    cardWood:'木材计算器', cardWoodDesc:'单根材积快速计算。',
+                    cardTile:'瓷砖计算器', cardTileDesc:'房间面积 ÷ 瓷砖尺寸 = 精准用量。',
+                    appTitle:'📱 移动端 App 即将上线', appDesc:'我们正在全力开发 BuildCalc Pro 的 iOS 与 Android 原生应用。届时您将可以享受更流畅的计算体验，支持离线使用、项目保存与云端同步。',
+                    featuresTitle:'为什么选择 BuildCalc Pro？', featuresSub:'专为建筑从业者和 DIY 爱好者打造',
+                    feat1Title:'多语言界面', feat1Desc:'简体中文、繁體中文、English、日本語，一键切换。',
+                    feat2Title:'多货币结算', feat2Desc:'CNY · USD · JPY 独立切换。',
+                    feat3Title:'公制/英制双模', feat3Desc:'单位自动换算，适合全球用户。',
+                    feat4Title:'实时计算', feat4Desc:'输入即出结果，浏览器本地运算。',
+                    feat5Title:'App 即将上线', feat5Desc:'iOS 与 Android 原生应用开发中。',
+                    feat6Title:'无需注册', feat6Desc:'打开即用，保护您的隐私。',
+                    ctaTitle:'准备好提升效率了吗？', ctaSub:'免费版覆盖核心计算，Pro 版解锁 PDF 问答、拍照估数等高级功能。', ctaBtn:'升级至 Pro 版 🔥',
+                    footerText:'免费建筑材料计算器合集',
+                    footerDisclaimer:'* 所有计算结果仅供参考，实际施工请依据专业规范和现场条件。',
+                },
+                'zh-Hant': {
+                    navHome:'首頁', navCalcs:'計算器', navFeatures:'特性', navApp:'App', navPricing:'定價',
+                    btnLangZH:'簡', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    heroBadge:'🚀 免費線上工具 · 無需註冊', heroTitle:'建築材料計算，', heroTitle2:'從未如此簡單。',
+                    heroSub:'涵蓋混凝土、鋼筋、磚牆、木材、瓷磚五大品類，支援單價估算、多貨幣切換、公制/英制即時轉換。移動端App即將上線。',
+                    heroCTA:'立即體驗免費工具 →', heroPro:'了解 Pro 版',
+                    statCalcs:'專業計算器', statLangs:'界面語言', statCurrencies:'結算貨幣', statApp:'App 開發中',
+                    calcsTitle:'選擇您的計算器', calcsSub:'點擊卡片，跳轉到對應計算工具',
+                    cardConcrete:'混凝土計算器', cardConcreteDesc:'體積、重量、總價一鍵估算。',
+                    cardRebar:'鋼筋計算器', cardRebarDesc:'直徑與長度 → 重量與成本。',
+                    cardBrick:'磚牆計算器', cardBrickDesc:'磚塊數量、砂漿用量預估。',
+                    cardWood:'木材計算器', cardWoodDesc:'單根材積快速計算。',
+                    cardTile:'瓷磚計算器', cardTileDesc:'房間面積 ÷ 瓷磚尺寸 = 精準用量。',
+                    appTitle:'📱 移動端 App 即將上線', appDesc:'我們正在全力開發 BuildCalc Pro 的 iOS 與 Android 原生應用。屆時您將可以享受更流暢的計算體驗，支援離線使用、項目儲存與雲端同步。',
+                    featuresTitle:'為什麼選擇 BuildCalc Pro？', featuresSub:'專為建築從業者和 DIY 愛好者打造',
+                    feat1Title:'多語言界面', feat1Desc:'簡體中文、繁體中文、English、日本語，一鍵切換。',
+                    feat2Title:'多貨幣結算', feat2Desc:'CNY · USD · JPY 獨立切換。',
+                    feat3Title:'公制/英制雙模', feat3Desc:'單位自動換算，適合全球用戶。',
+                    feat4Title:'即時計算', feat4Desc:'輸入即出結果，瀏覽器本地運算。',
+                    feat5Title:'App 即將上線', feat5Desc:'iOS 與 Android 原生應用開發中。',
+                    feat6Title:'無需註冊', feat6Desc:'打開即用，保護您的隱私。',
+                    ctaTitle:'準備好提升效率了嗎？', ctaSub:'免費版覆蓋核心計算，Pro 版解鎖 PDF 問答、拍照估數等進階功能。', ctaBtn:'升級至 Pro 版 🔥',
+                    footerText:'免費建築材料計算機合集',
+                    footerDisclaimer:'* 所有計算結果僅供參考，實際施工請依據專業規範和現場條件。',
+                },
+                en: {
+                    navHome:'Home', navCalcs:'Calculators', navFeatures:'Features', navApp:'App', navPricing:'Pricing',
+                    btnLangZH:'简', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    heroBadge:'🚀 Free Online Tools · No Signup', heroTitle:'Construction Material', heroTitle2:'Calculations Made Simple.',
+                    heroSub:'Covering concrete, rebar, brick, wood, and tile. Multi-currency, metric/imperial. Mobile app coming soon!',
+                    heroCTA:'Try Free Tools →', heroPro:'Learn Pro',
+                    statCalcs:'Calculators', statLangs:'Languages', statCurrencies:'Currencies', statApp:'App Coming',
+                    calcsTitle:'Choose Your Calculator', calcsSub:'Click a card to jump to the tool',
+                    cardConcrete:'Concrete Calculator', cardConcreteDesc:'Volume, weight & total cost estimation.',
+                    cardRebar:'Rebar Calculator', cardRebarDesc:'Diameter & length → weight & cost.',
+                    cardBrick:'Brick Calculator', cardBrickDesc:'Brick count & mortar volume.',
+                    cardWood:'Wood Calculator', cardWoodDesc:'Single piece volume calculation.',
+                    cardTile:'Tile Calculator', cardTileDesc:'Floor area ÷ tile size = precise quantity.',
+                    appTitle:'📱 Mobile App Coming Soon', appDesc:'We are building native iOS & Android apps for BuildCalc Pro. Enjoy offline access, project saving, and cloud sync.',
+                    featuresTitle:'Why BuildCalc Pro?', featuresSub:'Designed for professionals and DIY enthusiasts',
+                    feat1Title:'Multilingual', feat1Desc:'Chinese, English, Japanese — switch seamlessly.',
+                    feat2Title:'Multi-Currency', feat2Desc:'CNY · USD · JPY independent switching.',
+                    feat3Title:'Metric/Imperial', feat3Desc:'Auto unit conversion for global users.',
+                    feat4Title:'Real-Time', feat4Desc:'Instant results as you type.',
+                    feat5Title:'App Coming', feat5Desc:'Native iOS & Android apps in development.',
+                    feat6Title:'No Signup', feat6Desc:'Use immediately, privacy protected.',
+                    ctaTitle:'Ready to boost productivity?', ctaSub:'Free covers essentials. Pro unlocks PDF Q&A, photo estimation, and more.', ctaBtn:'Upgrade to Pro 🔥',
+                    footerText:'Free Construction Calculator Collection',
+                    footerDisclaimer:'* All calculations are for reference only.',
+                },
+                ja: {
+                    navHome:'ホーム', navCalcs:'計算機', navFeatures:'特徴', navApp:'アプリ', navPricing:'価格',
+                    btnLangZH:'簡', btnLangZHHant:'繁', btnLangEN:'EN', btnLangJA:'日',
+                    heroBadge:'🚀 無料オンラインツール · 登録不要', heroTitle:'建築材料計算は、', heroTitle2:'とても簡単です。',
+                    heroSub:'コンクリート、鉄筋、レンガ、木材、タイルをカバー。多通貨・単位変換対応。モバイルアプリ近日公開。',
+                    heroCTA:'無料ツールを試す →', heroPro:'Pro版について',
+                    statCalcs:'計算機', statLangs:'言語', statCurrencies:'通貨', statApp:'アプリ開発中',
+                    calcsTitle:'計算機を選ぶ', calcsSub:'カードをクリックしてツールに移動',
+                    cardConcrete:'コンクリート計算機', cardConcreteDesc:'体積・重量・合計金額を計算。',
+                    cardRebar:'鉄筋計算機', cardRebarDesc:'直径と長さ → 重量とコスト。',
+                    cardBrick:'レンガ計算機', cardBrickDesc:'レンガ数とモルタル量。',
+                    cardWood:'木材計算機', cardWoodDesc:'1本あたりの材積を計算。',
+                    cardTile:'タイル計算機', cardTileDesc:'床面積 ÷ タイルサイズ = 必要枚数。',
+                    appTitle:'📱 モバイルアプリ近日公開', appDesc:'BuildCalc ProのiOSとAndroidネイティブアプリを開発中です。オフライン利用、プロジェクト保存、クラウド同期でより快適な体験を。',
+                    featuresTitle:'なぜBuildCalc Pro？', featuresSub:'建築従事者とDIY愛好家のために設計',
+                    feat1Title:'多言語対応', feat1Desc:'中国語、英語、日本語 — シームレスに切り替え。',
+                    feat2Title:'多通貨対応', feat2Desc:'CNY · USD · JPY を独立切替。',
+                    feat3Title:'単位変換', feat3Desc:'メートル/フィート自動換算。',
+                    feat4Title:'リアルタイム', feat4Desc:'入力と同時に結果を表示。',
+                    feat5Title:'アプリ開発中', feat5Desc:'iOS & Androidネイティブアプリ。',
+                    feat6Title:'登録不要', feat6Desc:'すぐに使えてデータ収集なし。',
+                    ctaTitle:'生産性を向上させる準備は？', ctaSub:'無料版は基本計算をカバー。Pro版はPDF Q&A、写真推定など。', ctaBtn:'Pro版にアップグレード 🔥',
+                    footerText:'無料建築材料計算機コレクション',
+                    footerDisclaimer:'* 計算結果は参考値です。',
+                }
+            };
+
+            let currentLang = 'en';
+
+            function applyTranslations() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (i18n[currentLang] && i18n[currentLang][key] !== undefined) {
+                        el.textContent = i18n[currentLang][key];
+                    }
+                });
+            }
+
+            function switchLang(lang) {
+                currentLang = lang;
+                document.getElementById('btnLangZH').classList.toggle('active', lang === 'zh');
+                document.getElementById('btnLangZHHant').classList.toggle('active', lang === 'zh-Hant');
+                document.getElementById('btnLangEN').classList.toggle('active', lang === 'en');
+                document.getElementById('btnLangJA').classList.toggle('active', lang === 'ja');
+                document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'zh-Hant' ? 'zh-Hant' : (lang === 'ja' ? 'ja' : 'en'));
+                applyTranslations();
+            }
+
+            window.switchLang = switchLang;
+
+            window.addEventListener('scroll', () => {
+                document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                switchLang('en');
+            });
+        })();
+    </script>
+</body>
+</html>
